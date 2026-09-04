@@ -403,9 +403,39 @@
 
   let opened = false;
 
+  // ---- música ----
+  const music = document.getElementById('bgMusic');
+  const musicToggle = document.getElementById('musicToggle');
+  const musicHint = document.getElementById('musicHint');
+  let musicPlaying = false;
+
+  function playMusic(){
+    if(musicPlaying) return;
+    music.play().then(()=>{
+      musicPlaying = true;
+      musicToggle.textContent = '🎶';
+      musicToggle.classList.add('playing');
+    }).catch(()=>{
+      // si el navegador bloquea el audio (falta el archivo o el gesto), no truena nada
+      musicToggle.textContent = '🎵';
+    });
+  }
+
+  function toggleMusic(){
+    if(!musicPlaying){
+      playMusic();
+    } else {
+      music.pause();
+      musicPlaying = false;
+      musicToggle.textContent = '🎵';
+      musicToggle.classList.remove('playing');
+    }
+  }
+
   function openLetter(){
     scene.classList.add('opening');
     wrap.classList.add('visible');
+    playMusic(); // la música arranca al abrir la carta (click en el corazón)
     if(!opened){
       opened = true;
       paras.forEach((p, i)=>{
@@ -494,36 +524,11 @@
   });
   window.addEventListener('scroll', hideNote, true);
 
-  // ---- música ----
-  const music = document.getElementById('bgMusic');
-  const musicToggle = document.getElementById('musicToggle');
-  const musicHint = document.getElementById('musicHint');
-  let musicPlaying = false;
-  let hintTimeout = null;
-
-  // el botón de música aparece apenas carga la página
   musicToggle.classList.add('show');
+  musicToggle.addEventListener('click', toggleMusic);
 
-  musicToggle.addEventListener('click', ()=>{
-    if(!musicPlaying){
-      music.play().then(()=>{
-        musicPlaying = true;
-        musicToggle.textContent = '🎶';
-        musicToggle.classList.add('playing');
-      }).catch(()=>{
-        // si el navegador bloquea el audio (falta el archivo o el gesto), no truena nada
-        musicToggle.textContent = '🎵';
-      });
-    } else {
-      music.pause();
-      musicPlaying = false;
-      musicToggle.textContent = '🎵';
-      musicToggle.classList.remove('playing');
-    }
-  });
-
-  // mostramos un hint breve la primera vez para invitar a darle play
-  hintTimeout = setTimeout(()=>{
+  // mostramos un hint breve la primera vez para invitar a darle play (por si el autoplay se bloquea)
+  setTimeout(()=>{
     musicHint.classList.add('show');
     setTimeout(()=> musicHint.classList.remove('show'), 3500);
   }, 1200);
