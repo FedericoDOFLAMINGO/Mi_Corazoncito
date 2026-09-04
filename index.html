@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para ti, mi niña linda</title>
+<style>
+  :root{
+    --sky-top:#2b1830;
+    --sky-mid:#6e3355;
+    --sky-low:#c86a4a;
+    --sky-horizon:#f3a267;
+    --hill-far:#3a2038;
+    --hill-near:#1c0f1e;
+    --cream:#fff2e4;
+    --coral:#ff7086;
+    --coral-deep:#e14d63;
+    --gold:#f0b878;
+    --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    --font-body: 'Quicksand', 'Nunito', -apple-system, sans-serif;
+  }
+
+  @font-face{
+    font-family:'Playfair Display';
+    src: local('Playfair Display');
+  }
+
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:var(--sky-top);
+    font-family:var(--font-body);
+    overflow-x:hidden;
+  }
+
+  /* ---------- SCENE ---------- */
+  .scene{
+    position:relative;
+    width:100%; height:100vh; min-height:560px;
+    background: linear-gradient(180deg,
+      var(--sky-top) 0%,
+      var(--sky-mid) 45%,
+      var(--sky-low) 75%,
+      var(--sky-horizon) 100%);
+    overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+    transition: filter 1.2s ease;
+  }
+
+  .stars{
+    position:absolute; inset:0 0 45% 0;
+  }
+  .star{
+    position:absolute; width:2px; height:2px; background:var(--cream);
+    border-radius:50%; opacity:.7;
+    animation: twinkle 3s ease-in-out infinite;
+  }
+  @keyframes twinkle{
+    0%,100%{opacity:.15;}
+    50%{opacity:.9;}
+  }
+
+  .firefly{
+    position:absolute; width:5px; height:5px; border-radius:50%;
+    background:var(--gold); box-shadow:0 0 8px 3px rgba(240,184,120,.8);
+    animation: float-up linear infinite;
+    opacity:.85;
+  }
+  @keyframes float-up{
+    0%{ transform:translateY(0) translateX(0); opacity:0;}
+    10%{opacity:.9;}
+    90%{opacity:.7;}
+    100%{ transform:translateY(-70vh) translateX(20px); opacity:0;}
+  }
+
+  .hill{
+    position:absolute; bottom:0; left:-5%; width:110%;
+    border-radius:50% 50% 0 0 / 100% 100% 0 0;
+  }
+  .hill-far{ height:22%; background:var(--hill-far); opacity:.85; }
+  .hill-near{ height:14%; background:var(--hill-near); }
+
+  .sun-heart{
+    position:relative;
+    width:120px; height:108px;
+    cursor:pointer;
+    z-index:5;
+    filter: drop-shadow(0 0 30px rgba(255,112,134,.55));
+    animation: pulse 2.6s ease-in-out infinite;
+    border:none; background:none; padding:0;
+  }
+  .sun-heart:before, .sun-heart:after{
+    content:""; position:absolute; top:0; width:62px; height:100px;
+    background: radial-gradient(circle at 30% 30%, var(--gold), var(--coral) 60%, var(--coral-deep) 100%);
+    border-radius:60px 60px 0 0;
+  }
+  .sun-heart:before{ left:60px; transform:rotate(-45deg); transform-origin:0 100%; }
+  .sun-heart:after{ left:-2px; transform:rotate(45deg); transform-origin:100% 100%; }
+  @keyframes pulse{
+    0%,100%{ transform:scale(1); }
+    50%{ transform:scale(1.08); }
+  }
+
+  .prompt-text{
+    position:absolute; bottom:8%; left:50%; transform:translateX(-50%);
+    color:var(--cream); font-family:var(--font-body); font-weight:600;
+    letter-spacing:.3px; font-size:1rem; text-align:center; z-index:5;
+    text-shadow:0 2px 10px rgba(0,0,0,.4);
+    animation: bob 2.4s ease-in-out infinite;
+  }
+  @keyframes bob{
+    0%,100%{ transform:translate(-50%,0); }
+    50%{ transform:translate(-50%,-6px); }
+  }
+
+  .scene.opening{ filter:brightness(.4) blur(2px); }
+
+  /* ---------- LETTER PANEL ---------- */
+  .letter-wrap{
+    position:fixed; inset:0; z-index:20;
+    display:flex; align-items:flex-start; justify-content:center;
+    padding:6vh 18px 60px;
+    background:rgba(20,10,20,.55);
+    backdrop-filter:blur(3px);
+    opacity:0; pointer-events:none;
+    transition:opacity .7s ease;
+    overflow-y:auto;
+  }
+  .letter-wrap.visible{ opacity:1; pointer-events:auto; }
+
+  .letter{
+    max-width:560px; width:100%;
+    background: linear-gradient(160deg, #fff8f0, var(--cream));
+    border-radius:18px;
+    padding:38px 30px 34px;
+    box-shadow: 0 25px 60px rgba(0,0,0,.45);
+    position:relative;
+    transform:translateY(40px) scale(.97);
+    opacity:0;
+    transition: transform .7s cubic-bezier(.2,.8,.3,1), opacity .7s ease;
+  }
+  .letter-wrap.visible .letter{ transform:translateY(0) scale(1); opacity:1; }
+
+  .letter::before{
+    content:""; position:absolute; top:0; left:0; right:0; height:6px;
+    border-radius:18px 18px 0 0;
+    background:linear-gradient(90deg,var(--coral),var(--gold),var(--coral));
+  }
+
+  .close-btn{
+    position:absolute; top:14px; right:16px;
+    background:none; border:none; font-size:1.4rem; color:#b96a71;
+    cursor:pointer; line-height:1; opacity:.65;
+  }
+  .close-btn:hover{ opacity:1; }
+
+  .letter h1{
+    font-family:var(--font-display); font-style:italic;
+    font-size:1.7rem; color:var(--coral-deep); margin:4px 0 22px;
+    text-align:center; font-weight:700;
+  }
+
+  .letter p{
+    font-size:1.02rem; line-height:1.75; color:#3d2b2f;
+    margin:0 0 18px; opacity:0; transform:translateY(10px);
+    transition:opacity .8s ease, transform .8s ease;
+    max-width:60ch;
+  }
+  .letter p.show{ opacity:1; transform:translateY(0); }
+
+  .signature{
+    font-family:var(--font-display); font-style:italic;
+    font-size:1.25rem; color:var(--coral-deep); text-align:right;
+    margin-top:26px; opacity:0; transition:opacity 1s ease;
+  }
+  .signature.show{ opacity:1; }
+
+  .kiss-btn{
+    display:block; margin:28px auto 4px;
+    background:linear-gradient(135deg,var(--coral),var(--coral-deep));
+    color:#fff; border:none; border-radius:999px;
+    padding:12px 26px; font-family:var(--font-body); font-weight:700;
+    font-size:.95rem; cursor:pointer; letter-spacing:.2px;
+    box-shadow:0 10px 22px rgba(225,77,99,.4);
+    opacity:0; transition:opacity 1s ease, transform .2s ease;
+  }
+  .kiss-btn.show{ opacity:1; }
+  .kiss-btn:active{ transform:scale(.96); }
+
+  .bubble{
+    position:fixed; z-index:30; pointer-events:none;
+    background:#fff; color:var(--coral-deep); font-family:var(--font-body);
+    font-weight:700; font-size:.92rem; padding:8px 14px; border-radius:14px;
+    box-shadow:0 8px 20px rgba(0,0,0,.25);
+    animation: bubble-pop 2.2s ease forwards;
+    white-space:nowrap;
+  }
+  @keyframes bubble-pop{
+    0%{ opacity:0; transform:translateY(0) scale(.7);}
+    12%{ opacity:1; transform:translateY(-8px) scale(1);}
+    80%{ opacity:1; }
+    100%{ opacity:0; transform:translateY(-40px) scale(.95);}
+  }
+
+  .particle-heart{
+    position:fixed; z-index:29; pointer-events:none;
+    font-size:1.1rem; animation: rise 2.4s ease-out forwards;
+  }
+  @keyframes rise{
+    0%{ transform:translateY(0) rotate(0deg); opacity:1;}
+    100%{ transform:translateY(-260px) rotate(25deg); opacity:0;}
+  }
+
+  /* ---------- MINI HEARTS + NOTITAS ---------- */
+  .mini-heart{
+    position:absolute; z-index:6;
+    background:none; border:none; cursor:pointer;
+    font-size:1.35rem; padding:6px;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,.3));
+    animation: bob-mini 3.2s ease-in-out infinite;
+  }
+  .mini-heart:nth-of-type(2n){ animation-duration:3.8s; animation-delay:.4s; }
+  .mini-heart:nth-of-type(3n){ animation-delay:.9s; }
+  @keyframes bob-mini{
+    0%,100%{ transform:translateY(0) rotate(-6deg); }
+    50%{ transform:translateY(-9px) rotate(6deg); }
+  }
+  .mini-heart.tapped{ animation:none; transform:scale(1.15) rotate(0deg); }
+
+  .letter-heart{
+    position:absolute; z-index:8;
+    background:none; border:none; cursor:pointer;
+    font-size:1.15rem; opacity:.9; padding:4px;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,.2));
+    transition: transform .2s ease;
+  }
+  .letter-heart:hover{ transform:scale(1.15); }
+  .letter-heart.tl{ top:-14px; left:-12px; transform:rotate(-16deg); }
+  .letter-heart.tr{ top:-14px; right:44px; transform:rotate(14deg); }
+  .letter-heart.bl{ bottom:-14px; left:20px; transform:rotate(11deg); }
+  .letter-heart.br{ bottom:-14px; right:-10px; transform:rotate(-12deg); }
+
+  .note-popup{
+    position:fixed; z-index:50; max-width:220px;
+    background: linear-gradient(160deg,#fffdf6,var(--cream));
+    border-radius:10px 10px 10px 2px;
+    padding:14px 16px;
+    font-family:var(--font-display); font-style:italic;
+    font-size:.98rem; line-height:1.4; color:var(--coral-deep);
+    box-shadow:0 16px 30px rgba(0,0,0,.35);
+    opacity:0; transform:scale(.85) rotate(-3deg);
+    pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease;
+  }
+  .note-popup::before{
+    content:""; position:absolute; top:-9px; left:18px;
+    width:36px; height:14px;
+    background:rgba(240,184,120,.6);
+    transform:rotate(-7deg);
+  }
+  .note-popup.show{
+    opacity:1; transform:scale(1) rotate(-1.5deg); pointer-events:auto;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .sun-heart, .prompt-text, .firefly, .star, .mini-heart{ animation:none !important; }
+  }
+
+  @media (max-width:420px){
+    .letter{ padding:30px 20px 26px; }
+    .letter h1{ font-size:1.4rem; }
+  }
+
+  /* ---------- FOTO + MÚSICA ---------- */
+  .polaroid{
+    display:block; margin:0 auto 24px;
+    width:78%; max-width:280px;
+    background:#fff; padding:12px 12px 34px;
+    border-radius:4px;
+    box-shadow:0 14px 30px rgba(0,0,0,.28);
+    transform:rotate(-2.5deg);
+    opacity:0; transition:opacity .9s ease, transform .9s ease;
+  }
+  .letter-wrap.visible .polaroid{ opacity:1; transform:rotate(-2.5deg) translateY(0); }
+  .polaroid img{
+    width:100%; display:block; aspect-ratio:1/1; object-fit:cover;
+    background:linear-gradient(135deg,#eee,#ddd);
+    border-radius:2px;
+  }
+  .polaroid figcaption{
+    text-align:center; font-family:var(--font-display); font-style:italic;
+    color:#7a6a63; font-size:.92rem; margin-top:10px;
+  }
+
+  .music-toggle{
+    position:fixed; top:16px; right:16px; z-index:60;
+    width:44px; height:44px; border-radius:50%;
+    background:rgba(255,255,255,.18); backdrop-filter:blur(6px);
+    border:1px solid rgba(255,255,255,.4); color:var(--cream);
+    font-size:1.1rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity .5s ease;
+  }
+  .music-toggle.show{ opacity:1; pointer-events:auto; }
+  .music-toggle.playing{ animation: spin-slow 6s linear infinite; }
+  @keyframes spin-slow{ from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+
+  .music-hint{
+    position:fixed; top:22px; right:70px; z-index:60;
+    color:var(--cream); font-family:var(--font-body); font-weight:600;
+    font-size:.8rem; text-shadow:0 2px 8px rgba(0,0,0,.4);
+    opacity:0; pointer-events:none; transition:opacity .5s ease;
+  }
+  .music-hint.show{ opacity:.9; }
+</style>
+</head>
+<body>
+
+<div class="scene" id="scene">
+  <div class="stars" id="stars"></div>
+  <div id="fireflies"></div>
+  <div class="hill hill-far"></div>
+  <div class="hill hill-near"></div>
+  <button class="sun-heart" id="openBtn" aria-label="Abrir la carta"></button>
+  <div class="prompt-text">abrir🤍</div>
+
+  <button class="mini-heart" style="top:10%;left:12%;" data-note="psst… eres mi persona favorita en todo el mundo 🤍">🤍</button>
+  <button class="mini-heart" style="top:15%;left:80%;" data-note="cada mensajito tuyo me alegra el día entero">💛</button>
+  <button class="mini-heart" style="top:40%;left:18%;" data-note="ahorita mismo estoy pensando en ti, otra vez">💗</button>
+  <button class="mini-heart" style="top:36%;left:84%;" data-note="gracias por existir, de verdad, gracias">🩷</button>
+  <button class="mini-heart" style="top:55%;left:6%;" data-note="eres mi lugar favorito del mundo entero">💕</button>
+</div>
+
+<button class="music-toggle" id="musicToggle" aria-label="Reproducir música">🎵</button>
+<div class="music-hint" id="musicHint">Mi Niña Linda</div>
+
+<div class="letter-wrap" id="letterWrap">
+  <div class="letter">
+    <button class="close-btn" id="closeBtn" aria-label="Cerrar">✕</button>
+    <button class="letter-heart tl" data-note="no hay nadie como tú, nunca lo va a haber">💗</button>
+    <button class="letter-heart tr" data-note="esto es solo para que sonrías un poquito">🩷</button>
+    <button class="letter-heart bl" data-note="te lo dije y te lo repito: te quiero muchooo">💛</button>
+    <button class="letter-heart br" data-note="mi corazoncito, literal, es tuyo">🤍</button>
+    <h1>Para ti, mi niña linda</h1>
+
+    <figure class="polaroid">
+      <img src="foto.jpg" alt="Nuestra foto">
+      <figcaption>tú y yo, mi lugar favorito</figcaption>
+    </figure>
+
+    <div id="paragraphs">
+      <p>Sé que las palabras nunca van a alcanzar. No hay forma exacta de decirte cuánto te quiero, y siempre, siempre se me quedan cortas. Pero siempre TE QUIERO con todo lo que tengo y todo lo que soy, te quierooo muchooo, muchooo, tanto que ni yo mismo lo puedo medir.</p>
+      <p>Eres todo mi amor y toda mi vida. No hay un solo día en el que no piense en ti, en el que no quiera verte sonreír, en el que no anhele que tu corazoncito se sienta completo, tranquilo, feliz. Eso es lo único que persigo siempre: tu felicidad, hoy y todos los días que vengan.</p>
+      <p>A veces me quedo pensando en las cosas más chiquitas: en cómo hablas cuando te emocionas, en tu risa cuando algo te da mucha ternura, en la forma en la que dices las cosas sin filtro, tal como las sientes. Todo eso, hasta lo más pequeño, me tiene enamorado. No es una sola cosa, eres tú completa, en cada detalle.</p>
+      <p>Contigo he aprendido que el amor no se trata de ser perfectos, sino de elegirnos aunque no lo seamos. Y yo te elijo, mi niña, te elijo hoy, te elijo mañana, te elijo en los días fáciles y en los que no lo son tanto. Eso para mí no es una duda, es lo más claro que tengo.</p>
+      <p>Quiero que lo sepas y que nunca, nunca lo dudes: eres mi amor y eres mi vida entera. Te adoro, te elijo, te admiro cada día un poco más. Y te quierooo, muchooo, muchooooooo, con ese cariño que no se explica con palabras, que solo se siente aquí, adentro.</p>
+      <p>Quiero ser tu lugar seguro. Que cuando el mundo se sienta pesado, pensar en mí te alivie aunque sea un poquito. Quiero cuidar tu paz como cuido mis propios latidos, y estar ahí, sin condiciones, para todo lo que venga: lo bonito y lo difícil también.</p>
+      <p>Y aunque no me alcance la vida entera para decírtelo todas las veces que lo siento, ahí voy a estar, insistiendo, recordándotelo, hasta que se te haga costumbre saber cuánto vales para mí.</p>
+      <p>Mi cuerpo, mi ser, todo lo que soy, es tuyo. Le pertenece a cada sentimiento que tengo por ti y que nace de ti. Te amo sin condiciones, sin peros, sin medias tintas. Completo, así, así como te quiero a ti.</p>
+    </div>
+    <div class="signature" id="signature">Tuyo, siempre. Tu Latoso FER</div>
+    <button class="kiss-btn" id="kissBtn">Mensajitos para Ti💋</button>
+  </div>
+</div>
+
+<div class="note-popup" id="notePopup"></div>
+
+<audio id="bgMusic" loop preload="none">
+  <source src="cancion.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  // stars
+  const starsEl = document.getElementById('stars');
+  for(let i=0;i<45;i++){
+    const s=document.createElement('div');
+    s.className='star';
+    s.style.left=Math.random()*100+'%';
+    s.style.top=Math.random()*80+'%';
+    s.style.animationDelay=(Math.random()*3)+'s';
+    starsEl.appendChild(s);
+  }
+
+  // fireflies
+  const flyEl = document.getElementById('fireflies');
+  for(let i=0;i<14;i++){
+    const f=document.createElement('div');
+    f.className='firefly';
+    f.style.left=(5+Math.random()*90)+'%';
+    f.style.bottom=(-5-Math.random()*10)+'%';
+    f.style.animationDuration=(6+Math.random()*6)+'s';
+    f.style.animationDelay=(Math.random()*6)+'s';
+    flyEl.appendChild(f);
+  }
+
+  const scene = document.getElementById('scene');
+  const wrap = document.getElementById('letterWrap');
+  const openBtn = document.getElementById('openBtn');
+  const closeBtn = document.getElementById('closeBtn');
+  const paras = document.querySelectorAll('#paragraphs p');
+  const signature = document.getElementById('signature');
+  const kissBtn = document.getElementById('kissBtn');
+
+  let opened = false;
+
+  function openLetter(){
+    scene.classList.add('opening');
+    wrap.classList.add('visible');
+    if(!opened){
+      opened = true;
+      paras.forEach((p, i)=>{
+        setTimeout(()=> p.classList.add('show'), 500 + i*750);
+      });
+      setTimeout(()=> signature.classList.add('show'), 500 + paras.length*750 + 200);
+      setTimeout(()=> kissBtn.classList.add('show'), 500 + paras.length*750 + 700);
+    }
+  }
+  function closeLetter(){
+    wrap.classList.remove('visible');
+    scene.classList.remove('opening');
+  }
+
+  openBtn.addEventListener('click', openLetter);
+  closeBtn.addEventListener('click', closeLetter);
+
+  const phrases = [
+    "te quiero muchooo 🤍","eres mi vida entera","mi corazoncito es tuyo",
+    "toda, toda mi vida","incondicionalmente tuyo","mi niña linda 💕",
+    "siempre y siempre","te adoro"
+  ];
+
+  kissBtn.addEventListener('click', (e)=>{
+    const rect = e.target.getBoundingClientRect();
+    const cx = rect.left + rect.width/2;
+    const cy = rect.top;
+
+    for(let i=0;i<10;i++){
+      const h=document.createElement('div');
+      h.className='particle-heart';
+      h.textContent = Math.random()>.5 ? '💗' : '💋';
+      h.style.left = (cx + (Math.random()*160-80)) + 'px';
+      h.style.top = cy + 'px';
+      h.style.animationDelay=(Math.random()*.4)+'s';
+      document.body.appendChild(h);
+      setTimeout(()=>h.remove(), 2800);
+    }
+
+    const b=document.createElement('div');
+    b.className='bubble';
+    b.textContent = phrases[Math.floor(Math.random()*phrases.length)];
+    b.style.left = (cx-60) + 'px';
+    b.style.top = (cy-30) + 'px';
+    document.body.appendChild(b);
+    setTimeout(()=>b.remove(), 2200);
+  });
+
+  // ---- corazoncitos con notitas ----
+  const notePopup = document.getElementById('notePopup');
+  const allHearts = document.querySelectorAll('.mini-heart, .letter-heart');
+  let activeHeart = null;
+
+  function showNote(heartEl){
+    const rect = heartEl.getBoundingClientRect();
+    notePopup.textContent = heartEl.dataset.note;
+    notePopup.classList.add('show');
+
+    // posicionar cerca del corazón, sin salirse de la pantalla
+    let left = rect.left + rect.width/2 - 90;
+    let top = rect.bottom + 10;
+    left = Math.max(10, Math.min(left, window.innerWidth - 230));
+    if(top + 90 > window.innerHeight){ top = rect.top - 100; }
+    notePopup.style.left = left + 'px';
+    notePopup.style.top = top + 'px';
+
+    heartEl.classList.add('tapped');
+    activeHeart = heartEl;
+  }
+  function hideNote(){
+    notePopup.classList.remove('show');
+    if(activeHeart){ activeHeart.classList.remove('tapped'); }
+    activeHeart = null;
+  }
+
+  allHearts.forEach(h=>{
+    h.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      if(activeHeart === h){ hideNote(); }
+      else{ showNote(h); }
+    });
+  });
+
+  document.addEventListener('click', (e)=>{
+    if(activeHeart && !notePopup.contains(e.target)){ hideNote(); }
+  });
+  window.addEventListener('scroll', hideNote, true);
+
+  // ---- música ----
+  const music = document.getElementById('bgMusic');
+  const musicToggle = document.getElementById('musicToggle');
+  const musicHint = document.getElementById('musicHint');
+  let musicPlaying = false;
+  let hintTimeout = null;
+
+  // el botón de música aparece apenas carga la página
+  musicToggle.classList.add('show');
+
+  musicToggle.addEventListener('click', ()=>{
+    if(!musicPlaying){
+      music.play().then(()=>{
+        musicPlaying = true;
+        musicToggle.textContent = '🎶';
+        musicToggle.classList.add('playing');
+      }).catch(()=>{
+        // si el navegador bloquea el audio (falta el archivo o el gesto), no truena nada
+        musicToggle.textContent = '🎵';
+      });
+    } else {
+      music.pause();
+      musicPlaying = false;
+      musicToggle.textContent = '🎵';
+      musicToggle.classList.remove('playing');
+    }
+  });
+
+  // mostramos un hint breve la primera vez para invitar a darle play
+  hintTimeout = setTimeout(()=>{
+    musicHint.classList.add('show');
+    setTimeout(()=> musicHint.classList.remove('show'), 3500);
+  }, 1200);
+</script>
+</body>
+</html>
